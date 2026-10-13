@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
-import { journeyKey, levelKeys } from '@homelab/core'
+import { journeyKey, missionKeys, missions, missionMap, isMissionUnlocked } from '@homelab/core'
 import { loadGame, reduceGame } from '@/game'
 import { evaluate } from '@/network'
 import { prepareOffline, initialOfflineStatus } from '@/offline'
@@ -18,22 +18,25 @@ export function App() {
   const [storageOK, setStorageOK] = useState(game.initialStorageOK)
   const [offline, setOffline] = useState(initialOfflineStatus)
   const root = useRef<HTMLDivElement>(null)
-  const state = game.levels[game.journey.level]
+  const missionId = game.journey.activeMission
+  const mission = missionMap[missionId]
+  const state = game.states[missionId]
   const desktop = evaluate(state, 'desktop'),
     phone = evaluate(state, 'phone')
   const won = desktop.online && phone.online
-  const challenge = game.journey.level === 'challenge'
+  const isChallenge = missionId === 'challenge'
   useEffect(() => {
     if (!game.changed) return
     try {
-      for (const level of ['guided', 'challenge'] as const)
-        localStorage.setItem(levelKeys[level], JSON.stringify(game.levels[level]))
+      for (const m of missions) {
+        localStorage.setItem(missionKeys[m.id], JSON.stringify(game.states[m.id]))
+      }
       localStorage.setItem(journeyKey, JSON.stringify(game.journey))
       setStorageOK(true)
     } catch {
       setStorageOK(false)
     }
-  }, [game.changed, game.levels, game.journey])
+  }, [game.changed, game.states, game.journey])
   useLayoutEffect(() => {
     if (game.focusTarget)
       root.current?.querySelector<HTMLElement>(game.focusTarget)?.focus({ preventScroll: true })
@@ -48,7 +51,10 @@ export function App() {
   useEffect(() => prepareOffline(setOffline), [])
   return (
     <div ref={root}>
-      <Briefing onStart={() => root.current?.querySelector<HTMLElement>('h1')?.focus()} />
+      <Briefing
+        mission={mission}
+        onStart={() => root.current?.querySelector<HTMLElement>('h1')?.focus()}
+      />
       <header className="topbar">
         <a className="brand" href="/">
           <Icon name="Network" />
@@ -56,23 +62,31 @@ export function App() {
             homelab<span className="brand-dot">.</span>
           </span>
         </a>
-        <span className="edition">NETWORKING / FIELD LAB {challenge ? '02' : '01'}</span>
+        <span className="edition">
+          NETWORKING / MISSION {String(mission.number).padStart(2, '0')}
+        </span>
         <span className="save-state">
           <Icon name={storageOK ? 'HardDrive' : 'AlertCircle'} />
           {storageOK ? 'Saved on this device' : 'Progress is not saved'}
         </span>
       </header>
-      <main className={challenge ? 'challenge' : undefined}>
+      <main className={isChallenge ? 'challenge' : undefined}>
         <section className="mission">
           <div>
-            <p className="eyebrow">{challenge ? 'INDEPENDENT CHALLENGE' : 'YOUR FIRST NETWORK'}</p>
+            <p className="eyebrow">{mission.subtitle}</p>
             <h1 tabIndex={-1}>
-              {challenge ? 'Your network. Your call.' : 'Make the first connection.'}
+              {mission.title === 'First connection'
+                ? 'Make the first connection.'
+                : mission.title === 'On your own'
+                  ? 'Your network. Your call.'
+                  : mission.description}
             </h1>
             <p>
-              {challenge
-                ? 'Connect this fresh rack and bring both devices online.'
-                : 'Build a network that brings your desktop and phone online.'}
+              {mission.id === 'guided'
+                ? 'Build a network that brings your desktop and phone online.'
+                : mission.id === 'challenge'
+                  ? 'Connect this fresh rack and bring both devices online.'
+                  : mission.description}
             </p>
           </div>
           <div className="mission-progress">
@@ -83,36 +97,36 @@ export function App() {
             <span>devices online</span>
           </div>
         </section>
-        <nav className="journey-nav" aria-label="Learning levels">
-          <button
-            type="button"
-            data-level="guided"
-            aria-current={!challenge ? 'step' : undefined}
-            onClick={() => dispatch({ type: 'level', level: 'guided' })}
-          >
-            <span>01</span> First connection
-          </button>
-          <button
-            type="button"
-            data-level="challenge"
-            aria-current={challenge ? 'step' : undefined}
-            disabled={!game.journey.unlocked}
-            onClick={() => dispatch({ type: 'level', level: 'challenge' })}
-          >
-            <span>02</span> On your own
-          </button>
+        <nav className="journey-nav" aria-label="Learning missions">
+          {missions.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              data-level={m.id}
+              aria-current={missionId === m.id ? 'step' : undefined}
+              disabled={!isMissionUnlocked(m.id, game.journey)}
+              onClick={() => dispatch({ type: 'mission', id: m.id })}
+            >
+              <span>{String(m.number).padStart(2, '0')}</span> {m.title}
+            </button>
+          ))}
           <span className="offline-state" role="status">
             {offline}
           </span>
         </nav>
         <div className="lab-layout">
-          <Equipment game={game} dispatch={dispatch} desktop={desktop} phone={phone} />
+          <Equipment game={game} dispatch={dispatch} mission={mission} />
           <Workbench game={game} dispatch={dispatch} desktop={desktop} phone={phone} />
           <Inspector game={game} dispatch={dispatch} desktop={desktop} phone={phone} />
         </div>
-        <Diagnostics game={game} dispatch={dispatch} statuses={{ desktop, phone }} />
+        <Diagnostics
+          game={game}
+          dispatch={dispatch}
+          statuses={{ desktop, phone }}
+          mission={mission}
+        />
         {game.prediction && <PredictionPanel prediction={game.prediction} dispatch={dispatch} />}
-        {challenge && game.tested && won && (
+        {isChallenge && game.tested && won && (
           <Reflection
             journey={game.journey}
             hints={state.hints}
@@ -120,11 +134,11 @@ export function App() {
             dispatch={dispatch}
           />
         )}
-        {challenge && (
+        {isChallenge && (
           <LabComplete
             journey={game.journey}
-            guided={game.levels.guided}
-            challenge={game.levels.challenge}
+            guided={game.states.guided}
+            challenge={game.states.challenge}
           />
         )}
         <details className="reference">
@@ -166,7 +180,7 @@ export function App() {
         </details>
       </main>
       <footer>
-        <span>HOMELAB / FIRST CONNECTION</span>
+        <span>HOMELAB / {mission.title.toUpperCase()}</span>
         <span>Built for curiosity. No timer, no lost lives.</span>
       </footer>
     </div>

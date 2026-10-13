@@ -15,7 +15,7 @@ export function Inspector({
   desktop: Connectivity
   phone: Connectivity
 }) {
-  const state = game.levels[game.journey.level]
+  const state = game.states[game.journey.activeMission]
   const id = game.selected
   const device = devices[id]
   let client: Connectivity | null = null

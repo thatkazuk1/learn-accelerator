@@ -77,7 +77,7 @@ function Hardware({
             <Port
               key={port}
               port={port}
-              state={game.levels[game.journey.level]}
+              state={game.states[game.journey.activeMission]}
               pending={game.pending}
               dispatch={dispatch}
             />
@@ -103,7 +103,7 @@ export function Workbench({
   desktop: Connectivity
   phone: Connectivity
 }) {
-  const state = game.levels[game.journey.level]
+  const state = game.states[game.journey.activeMission]
   const sceneRef = useRef<HTMLDivElement>(null)
   const [drawing, setDrawing] = useState<{ width: number; height: number; paths: CablePath[] }>({
     width: 1,

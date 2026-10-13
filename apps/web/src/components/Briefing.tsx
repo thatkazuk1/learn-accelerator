@@ -1,58 +1,64 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import type { Mission } from '@homelab/core'
 import { Icon } from '@/components/Icon'
 
-const storageKey = 'homelab.briefing.v1'
+function storageKey(missionId: string): string {
+  if (missionId === 'guided') return 'homelab.briefing.v1'
+  return `homelab.briefing.${missionId}.v1`
+}
 
-function dismissed(): boolean {
+function dismissed(missionId: string): boolean {
   try {
-    return localStorage.getItem(storageKey) === 'done'
+    return localStorage.getItem(storageKey(missionId)) === 'done'
   } catch {
     return false
   }
 }
 
-function dismiss() {
+function dismiss(missionId: string) {
   try {
-    localStorage.setItem(storageKey, 'done')
+    localStorage.setItem(storageKey(missionId), 'done')
   } catch {
     /* storage blocked */
   }
 }
 
-export function Briefing({ onStart }: { onStart: () => void }) {
-  const [open, setOpen] = useState(!dismissed())
+export function Briefing({ mission, onStart }: { mission: Mission; onStart: () => void }) {
+  const seen = useRef(new Set<string>())
+  const [open, setOpen] = useState(() => {
+    if (dismissed(mission.id)) {
+      seen.current.add(mission.id)
+      return false
+    }
+    return true
+  })
+  const [lastId, setLastId] = useState(mission.id)
+  if (mission.id !== lastId) {
+    setLastId(mission.id)
+    if (seen.current.has(mission.id) || dismissed(mission.id)) {
+      seen.current.add(mission.id)
+      if (open) setOpen(false)
+    } else {
+      if (!open) setOpen(true)
+    }
+  }
   if (!open) return null
   return (
     <div className="briefing-overlay" role="dialog" aria-labelledby="briefing-title">
       <div className="briefing">
         <p className="eyebrow">MISSION BRIEFING</p>
-        <h1 id="briefing-title">Welcome to your homelab.</h1>
-        <p className="briefing-lead">
-          You have three devices: a router, a switch, and an access point. Your mission is to
-          connect them so that a desktop and a phone can reach the internet.
-        </p>
+        <h1 id="briefing-title">{mission.title}</h1>
+        <p className="briefing-lead">{mission.description}</p>
         <div className="briefing-steps">
-          <div className="briefing-step">
-            <span className="briefing-number">01</span>
-            <div>
-              <strong>Stock the rack</strong>
-              <p>Place each device into an open slot.</p>
+          {mission.steps.map((step, index) => (
+            <div className="briefing-step" key={index}>
+              <span className="briefing-number">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <strong>{step.title}</strong>
+                <p>{step.detail}</p>
+              </div>
             </div>
-          </div>
-          <div className="briefing-step">
-            <span className="briefing-number">02</span>
-            <div>
-              <strong>Cable the network</strong>
-              <p>Connect ports between devices. The ISP handoff is already waiting.</p>
-            </div>
-          </div>
-          <div className="briefing-step">
-            <span className="briefing-number">03</span>
-            <div>
-              <strong>Run the check</strong>
-              <p>Test connectivity. Both clients must reach the internet.</p>
-            </div>
-          </div>
+          ))}
         </div>
         <p className="briefing-note">
           No timer. No penalties. Hints are available when you need them.
@@ -62,7 +68,8 @@ export function Briefing({ onStart }: { onStart: () => void }) {
           className="primary briefing-start"
           autoFocus
           onClick={() => {
-            dismiss()
+            seen.current.add(mission.id)
+            dismiss(mission.id)
             setOpen(false)
             onStart()
           }}

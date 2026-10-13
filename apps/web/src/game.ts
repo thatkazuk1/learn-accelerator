@@ -2,12 +2,15 @@ import {
   connect,
   devices,
   freshJourney,
-  freshLevel,
+  freshMission,
   journeyKey,
-  levelKeys,
+  missionKeys,
+  missionMap,
+  missions,
   restore,
   restoreJourney,
   runExperiment,
+  isMissionUnlocked,
 } from '@homelab/core'
 import type {
   AnswerId,
@@ -16,7 +19,7 @@ import type {
   EquipmentId,
   ExperimentId,
   Journey,
-  LevelId,
+  MissionId,
   NetworkState,
   PortId,
   Prediction,
@@ -24,7 +27,7 @@ import type {
 import { evaluate } from '@/network'
 
 export interface Game {
-  levels: Record<LevelId, NetworkState>
+  states: Record<MissionId, NetworkState>
   journey: Journey
   selected: DeviceId
   equipment: EquipmentId | null
@@ -38,6 +41,8 @@ export interface Game {
   focusTarget: string | null
   initialStorageOK: boolean
   changed: boolean
+  deviceChoices: string[]
+  deviceFeedback: string | null
 }
 export type Action =
   | { type: 'equipment'; id: EquipmentId }
@@ -48,10 +53,12 @@ export type Action =
   | { type: 'trace'; client: ClientId }
   | { type: 'remove'; id: EquipmentId }
   | { type: 'disconnect'; index: number }
-  | { type: 'level'; level: LevelId }
+  | { type: 'level'; level: MissionId }
+  | { type: 'mission'; id: MissionId }
   | { type: 'experiment'; id: ExperimentId }
   | { type: 'answer'; id: AnswerId }
   | { type: 'reflection'; id: EquipmentId; text: string }
+  | { type: 'selectDevice'; option: string }
   | {
       type:
         | 'test'
@@ -66,7 +73,8 @@ export type Action =
 
 export function loadGame(): Game {
   let journey = freshJourney()
-  const levels = { guided: freshLevel('guided'), challenge: freshLevel('challenge') }
+  const states: Record<string, NetworkState> = {}
+  for (const m of missions) states[m.id] = freshMission(m.id)
   let initialStorageOK = true
   try {
     const saved = localStorage.getItem(journeyKey)
@@ -74,16 +82,16 @@ export function loadGame(): Game {
   } catch {
     initialStorageOK = false
   }
-  for (const level of ['guided', 'challenge'] as const) {
+  for (const m of missions) {
     try {
-      const saved = localStorage.getItem(levelKeys[level])
-      if (saved) levels[level] = restore(JSON.parse(saved))
+      const saved = localStorage.getItem(missionKeys[m.id])
+      if (saved) states[m.id] = restore(JSON.parse(saved))
     } catch {
       initialStorageOK = false
     }
   }
   return {
-    levels,
+    states: states as Record<MissionId, NetworkState>,
     journey,
     initialStorageOK,
     changed: false,
@@ -97,14 +105,17 @@ export function loadGame(): Game {
     prediction: null,
     notice: 'Your internet connection is ready. Bring both devices online.',
     focusTarget: null,
+    deviceChoices: [],
+    deviceFeedback: null,
   }
 }
 
 function changeNetwork(game: Game, network: NetworkState, notice: string): Game {
+  const id = game.journey.activeMission
   return {
     ...game,
-    levels: { ...game.levels, [game.journey.level]: network },
-    history: [...game.history.slice(-29), game.levels[game.journey.level]],
+    states: { ...game.states, [id]: network },
+    history: [...game.history.slice(-29), game.states[id]],
     pending: null,
     trace: null,
     prediction: null,
@@ -115,9 +126,12 @@ function changeNetwork(game: Game, network: NetworkState, notice: string): Game 
 
 export function reduceGame(previous: Game, action: Action): Game {
   let game: Game = { ...previous, focusTarget: null }
-  const state = game.levels[game.journey.level]
+  const missionId = game.journey.activeMission
+  const mission = missionMap[missionId]
+  const state = game.states[missionId]
   switch (action.type) {
     case 'equipment': {
+      if (mission.features?.slotsLocked) return game
       const equipment = state.slots.includes(action.id) ? null : action.id
       game = {
         ...game,
@@ -129,6 +143,7 @@ export function reduceGame(previous: Game, action: Action): Game {
       break
     }
     case 'place': {
+      if (mission.features?.slotsLocked) return game
       if (!game.equipment)
         return { ...game, notice: 'Choose a device from your starter kit first.' }
       const id = game.equipment
@@ -175,9 +190,9 @@ export function reduceGame(previous: Game, action: Action): Game {
       break
     case 'hint':
       game.hint = true
-      game.levels = {
-        ...game.levels,
-        [game.journey.level]: { ...state, hints: Math.min(3, state.hints + 1) },
+      game.states = {
+        ...game.states,
+        [missionId]: { ...state, hints: Math.min(mission.maxHints, state.hints + 1) },
       }
       game.changed = true
       break
@@ -186,7 +201,7 @@ export function reduceGame(previous: Game, action: Action): Game {
       if (!last) return game
       game = {
         ...game,
-        levels: { ...game.levels, [game.journey.level]: last },
+        states: { ...game.states, [missionId]: last },
         history: game.history.slice(0, -1),
         prediction: null,
         pending: null,
@@ -198,12 +213,15 @@ export function reduceGame(previous: Game, action: Action): Game {
       break
     }
     case 'reset':
-      game = changeNetwork(game, freshLevel(game.journey.level), 'Level reset. Undo is available.')
+      game = changeNetwork(game, mission.initial(), 'Mission reset. Undo is available.')
       game.tested = false
       game.equipment = null
       game.hint = false
+      game.deviceChoices = []
+      game.deviceFeedback = null
       break
     case 'remove': {
+      if (mission.features?.slotsLocked) return game
       const slots = state.slots.map((id) => (id === action.id ? null : id)) as NetworkState['slots']
       game = changeNetwork(
         game,
@@ -232,16 +250,18 @@ export function reduceGame(previous: Game, action: Action): Game {
       game.pending = null
       game.equipment = null
       break
-    case 'level': {
-      if (
-        action.level === game.journey.level ||
-        (action.level === 'challenge' && !game.journey.unlocked)
-      )
-        return game
+    case 'level':
+    case 'mission': {
+      const targetId = action.type === 'level' ? action.level : action.id
+      if (targetId === missionId || !isMissionUnlocked(targetId, game.journey)) return game
       return {
         ...game,
-        journey: { ...game.journey, level: action.level },
-        selected: action.level === 'challenge' ? 'ap' : 'router',
+        journey: {
+          ...game.journey,
+          activeMission: targetId,
+          level: targetId === 'guided' || targetId === 'challenge' ? targetId : game.journey.level,
+        },
+        selected: targetId === 'challenge' ? 'ap' : 'router',
         equipment: null,
         pending: null,
         tested: false,
@@ -250,9 +270,38 @@ export function reduceGame(previous: Game, action: Action): Game {
         history: [],
         prediction: null,
         changed: true,
-        notice: 'Bring both devices online. Hints are available whenever you need them.',
+        notice: missionMap[targetId].description,
         focusTarget: 'h1',
+        deviceChoices: [],
+        deviceFeedback: null,
       }
+    }
+    case 'selectDevice': {
+      const sel = mission.features?.deviceSelection
+      if (!sel) return game
+      const option = action.option
+      if (game.deviceChoices.includes(option)) return game
+      const correct = sel.correct as string[]
+      if (!correct.includes(option)) {
+        const feedback =
+          option === 'hub'
+            ? 'A hub repeats all traffic to every port. A switch is more efficient.'
+            : option === 'repeater'
+              ? 'A repeater extends a signal range. An access point bridges wireless to wired.'
+              : `${option} is not the right device for this network.`
+        return { ...game, deviceFeedback: feedback }
+      }
+      const choices = [...game.deviceChoices, option]
+      game = { ...game, deviceChoices: choices, deviceFeedback: null }
+      if (choices.length === correct.length) {
+        const slots = correct.slice() as NetworkState['slots']
+        game = changeNetwork(
+          game,
+          { ...state, slots },
+          'All devices selected. Now cable the network.',
+        )
+      }
+      break
     }
     case 'experiment':
       game.prediction = { phase: 'choose', experiment: action.id, answer: null }
@@ -307,13 +356,17 @@ export function reduceGame(previous: Game, action: Action): Game {
       game.changed = true
       break
   }
-  const current = game.levels[game.journey.level]
-  if (game.tested && evaluate(current, 'desktop').online && evaluate(current, 'phone').online) {
-    if (!game.journey.unlocked) {
-      game.journey = { ...game.journey, unlocked: true }
+  const current = game.states[missionId]
+  if (game.tested && mission.win(current, evaluate)) {
+    if (!game.journey.completed[missionId]) {
+      game.journey = {
+        ...game.journey,
+        completed: { ...game.journey.completed, [missionId]: true },
+      }
+      if (missionId === 'guided') game.journey.unlocked = true
       game.changed = true
     }
-    if (game.journey.level === 'guided' && !game.prediction)
+    if (mission.hasPrediction && !game.prediction)
       game.prediction = { phase: 'choose', experiment: 'ap', answer: null }
   }
   return game

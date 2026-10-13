@@ -1,5 +1,5 @@
 import { clientIds, devices } from '@homelab/core'
-import type { ClientId, Connectivity } from '@homelab/core'
+import type { ClientId, Connectivity, Mission } from '@homelab/core'
 import type { Dispatch } from 'react'
 import type { Action, Game } from '@/game'
 import { deviceIcons, Icon } from '@/components/Icon'
@@ -8,10 +8,12 @@ export function Diagnostics({
   game,
   dispatch,
   statuses,
+  mission,
 }: {
   game: Game
   dispatch: Dispatch<Action>
   statuses: Record<ClientId, Connectivity>
+  mission: Mission
 }) {
   const won = statuses.desktop.online && statuses.phone.online
   return (
@@ -84,7 +86,7 @@ export function Diagnostics({
           <p>The router carries traffic between your local network and the upstream network.</p>
         </div>
       )}
-      {game.tested && won && game.journey.level === 'guided' && (
+      {game.tested && won && mission.id === 'guided' && (
         <p className="completion">
           Mission complete. Both clients reached the learning server. Try removing the access point
           uplink: which device will stay online?

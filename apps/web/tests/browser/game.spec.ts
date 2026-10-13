@@ -5,7 +5,10 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('homelab.briefing.v1', 'done'))
+  await page.addInitScript(() => {
+    for (const id of ['v1', 'challenge.v1', 'broken-link.v1', 'choose-device.v1', 'expand.v1'])
+      localStorage.setItem(`homelab.briefing.${id}`, 'done')
+  })
 })
 
 test('version-one saves load without migration and reflection text cannot create HTML', async ({
@@ -254,6 +257,7 @@ test('storage failure preserves session play and does not claim saved explanatio
   await build(page)
   await expect(page.locator('.save-state')).toHaveText('Progress is not saved')
   await page.getByRole('button', { name: '02 On your own' }).click()
+  await page.getByRole('button', { name: 'Begin mission' }).click()
   await wireChallenge(page)
   for (const id of ['router', 'switch', 'ap'])
     await page.locator(`#reflection-${id}`).fill('A session-only explanation for review.')

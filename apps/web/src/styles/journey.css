@@ -1,15 +1,19 @@
 .journey-nav {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 24px;
+  gap: 8px 16px;
   border-top: 1px solid var(--border-section);
   padding: 8px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 .journey-nav button {
   padding: 10px 0;
   font-size: 12px;
   border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .journey-nav button[aria-current] {
   border-color: var(--action-primary);
