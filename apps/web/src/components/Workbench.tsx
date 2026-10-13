@@ -42,6 +42,7 @@ function DeviceName({ id, dispatch }: { id: DeviceId; dispatch: Dispatch<Action>
       type="button"
       className="device-name"
       data-inspect={id}
+      aria-label={`Inspect ${devices[id].name}`}
       onClick={() => dispatch({ type: 'inspect', id })}
     >
       <Icon name={deviceIcons[id]} />
@@ -264,6 +265,7 @@ export function Workbench({
             </label>
             <select
               id="wifi"
+              aria-label={`Phone Wi-Fi network, ${state.wifi ? 'joined to Lab-WiFi' : 'not connected'}`}
               disabled={!state.slots.includes('ap')}
               value={state.wifi ? 'on' : 'off'}
               onChange={(event) => dispatch({ type: 'wifi', joined: event.target.value === 'on' })}

@@ -18,18 +18,27 @@ export function prepareOffline(onChange: (status: string) => void): () => void {
   }
   const update = () => report(navigator.onLine ? 'Ready for offline play' : 'Playing offline')
   const stateChange = () => {
-    if (installing?.state === 'redundant' && !registration?.active)
-      report('Offline download failed. Reload to retry.')
+    if (installing?.state === 'installed' && registration?.waiting)
+      report('Update ready. Close all tabs to finish.')
+    if (installing?.state === 'redundant') report('Offline download failed. Reload to retry.')
+  }
+  const watchInstall = (worker: ServiceWorker | null) => {
+    installing?.removeEventListener('statechange', stateChange)
+    installing = worker
+    installing?.addEventListener('statechange', stateChange)
   }
   async function register() {
     try {
       registration = await navigator.serviceWorker.register(`${config().baseUrl}sw.js`)
       if (!active) return
-      installing = registration.installing
-      installing?.addEventListener('statechange', stateChange)
+      watchInstall(registration.installing)
+      registration.addEventListener('updatefound', () => {
+        watchInstall(registration?.installing ?? null)
+      })
       await navigator.serviceWorker.ready
       if (!active) return
-      update()
+      if (registration.waiting) report('Update ready. Close all tabs to finish.')
+      else update()
       window.addEventListener('online', update)
       window.addEventListener('offline', update)
     } catch {

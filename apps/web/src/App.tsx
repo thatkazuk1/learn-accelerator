@@ -122,8 +122,9 @@ export function App() {
           <p>
             This model checks connections. It does not simulate each packet. Devices are powered
             automatically; routing, NAT, DHCP and Wi-Fi credentials are preconfigured. DNS, radio
-            range, leases and protocol exchanges are not simulated. A home router may combine the
-            three roles shown separately here.
+            range and protocol exchanges are not simulated. In real networks, DHCP leases can remain
+            valid for a time after a disconnection. This lab recomputes connectivity right away. A
+            home router may combine the three roles shown separately here.
           </p>
           <p>
             Sources:{' '}

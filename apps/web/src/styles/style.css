@@ -321,7 +321,7 @@ main {
   border-radius: 50%;
 }
 .icon-button {
-  width: 38px;
+  width: 44px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -476,7 +476,7 @@ main {
   text-align: left;
   padding: 0;
   font-size: 11px;
-  min-height: 30px;
+  min-height: 44px;
   position: relative;
   z-index: 5;
 }
@@ -534,6 +534,11 @@ main {
   position: relative;
   z-index: 5;
   border-radius: 3px;
+}
+.port::before {
+  content: '';
+  position: absolute;
+  inset: -5px -4px;
 }
 .port:hover,
 .port.chosen {
@@ -681,7 +686,7 @@ select {
   background: var(--lab-tone-92);
   border-radius: 4px;
   font-size: 10px;
-  min-height: 34px;
+  min-height: 44px;
   margin: 4px 0 7px;
 }
 .bench-status {
@@ -783,9 +788,6 @@ dd {
   font-size: 10px;
   color: var(--lab-tone-102);
   margin-top: 4px;
-}
-.connection-row .icon-button {
-  width: 28px;
 }
 .cable-dot {
   width: 6px;
