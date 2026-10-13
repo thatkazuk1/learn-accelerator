@@ -4,6 +4,10 @@ import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('homelab.briefing.v1', 'done'))
+})
+
 test('version-one saves load without migration and reflection text cannot create HTML', async ({
   page,
 }) => {
@@ -246,6 +250,7 @@ test('storage failure preserves session play and does not claim saved explanatio
     }
   })
   await page.goto('/')
+  await page.getByRole('button', { name: 'Begin mission' }).click()
   await build(page)
   await expect(page.locator('.save-state')).toHaveText('Progress is not saved')
   await page.getByRole('button', { name: '02 On your own' }).click()

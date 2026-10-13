@@ -4,12 +4,14 @@ import { loadGame, reduceGame } from '@/game'
 import { evaluate } from '@/network'
 import { prepareOffline, initialOfflineStatus } from '@/offline'
 import { Icon } from '@/components/Icon'
+import { Briefing } from '@/components/Briefing'
 import { Equipment } from '@/components/Equipment'
 import { Workbench } from '@/components/Workbench'
 import { Inspector } from '@/components/Inspector'
 import { Diagnostics } from '@/components/Diagnostics'
 import { PredictionPanel } from '@/components/PredictionPanel'
 import { Reflection } from '@/components/Reflection'
+import { LabComplete } from '@/components/LabComplete'
 
 export function App() {
   const [game, dispatch] = useReducer(reduceGame, undefined, loadGame)
@@ -46,6 +48,7 @@ export function App() {
   useEffect(() => prepareOffline(setOffline), [])
   return (
     <div ref={root}>
+      <Briefing onStart={() => root.current?.querySelector<HTMLElement>('h1')?.focus()} />
       <header className="topbar">
         <a className="brand" href="/">
           <Icon name="Network" />
@@ -115,6 +118,13 @@ export function App() {
             hints={state.hints}
             storageOK={storageOK}
             dispatch={dispatch}
+          />
+        )}
+        {challenge && (
+          <LabComplete
+            journey={game.journey}
+            guided={game.levels.guided}
+            challenge={game.levels.challenge}
           />
         )}
         <details className="reference">

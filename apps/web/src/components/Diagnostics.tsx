@@ -15,7 +15,7 @@ export function Diagnostics({
 }) {
   const won = statuses.desktop.online && statuses.phone.online
   return (
-    <section className="diagnostics">
+    <section className={`diagnostics${won && game.tested ? ' won' : ''}`}>
       <div className="diagnostic-heading">
         <div>
           <p className="eyebrow">CONNECTIVITY CHECK</p>
