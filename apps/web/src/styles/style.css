@@ -1243,6 +1243,178 @@ footer span:first-child {
     text-align: right;
   }
 }
+/* ── Briefing overlay ── */
+.briefing-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.briefing {
+  background: var(--surface-white);
+  border-radius: 10px;
+  padding: 48px 44px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.briefing h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+.briefing-lead {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--lab-tone-19);
+  margin-bottom: 28px;
+}
+.briefing-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.briefing-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.briefing-number {
+  font: 650 22px monospace;
+  color: var(--lab-tone-116);
+  min-width: 34px;
+  line-height: 1.2;
+}
+.briefing-step strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  margin-bottom: 3px;
+}
+.briefing-step p {
+  font-size: 12px;
+  color: var(--lab-tone-19);
+  line-height: 1.5;
+}
+.briefing-note {
+  font-size: 11px;
+  color: var(--lab-tone-101);
+  margin-bottom: 28px;
+}
+.briefing-start {
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: 14px;
+}
+
+/* ── Lab complete ── */
+.lab-complete {
+  margin-top: 28px;
+  padding: 32px;
+  background: var(--lab-tone-115);
+  border: 1px solid var(--lab-tone-116);
+  border-radius: 8px;
+}
+.lab-complete h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.complete-lead {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--lab-tone-19);
+  max-width: 600px;
+  margin-bottom: 24px;
+}
+.complete-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--surface-white);
+  border: 1px solid var(--border-section);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: 650;
+  color: var(--lab-tone-116);
+  line-height: 1.2;
+}
+.stat-label {
+  display: block;
+  font-size: 10px;
+  color: var(--lab-tone-101);
+  margin-top: 6px;
+}
+.complete-reflections h3 {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.reflection-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.reflection-summary > div {
+  display: block;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-section);
+}
+.reflection-summary dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 650;
+  font-size: 12px;
+  color: var(--lab-tone-15);
+  margin-bottom: 6px;
+}
+.reflection-summary dt svg {
+  width: 16px;
+  height: 16px;
+  color: var(--lab-tone-116);
+}
+.reflection-summary dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--lab-tone-97);
+  text-align: left;
+}
+
+/* ── Victory state ── */
+.diagnostics.won .diagnostic-heading h2 {
+  color: var(--lab-tone-116);
+}
+
+@media (max-width: 560px) {
+  .briefing {
+    padding: 32px 24px;
+  }
+  .briefing h1 {
+    font-size: 24px;
+  }
+  .briefing-number {
+    font-size: 18px;
+  }
+  .complete-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lab-complete {
+    padding: 24px 18px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
