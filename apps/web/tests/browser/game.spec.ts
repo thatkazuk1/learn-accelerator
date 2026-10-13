@@ -1,6 +1,8 @@
 import { config } from '../config/index.js'
 import type { Page, Locator } from '@playwright/test'
 import { test, expect } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 
 test('version-one saves load without migration and reflection text cannot create HTML', async ({
   page,
@@ -187,11 +189,49 @@ test('keyboard focus follows placement, removal and cancellation', async ({ page
   await expect(page.locator('[data-slot="0"]')).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-port="router:WAN"]')).toBeFocused()
-  await page.getByRole('button', { name: 'Remove from rack' }).click()
+  await page.getByRole('button', { name: 'Remove Router from rack' }).click()
   await expect(page.locator('[data-equipment="router"]')).toBeFocused()
   await page.keyboard.press('Enter')
   await page.keyboard.press('Escape')
   await expect(page.locator('[data-equipment="router"]')).toBeFocused()
+})
+
+test('controls have state names and target sizes', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Router, not installed' })).toBeVisible()
+  await page.getByRole('button', { name: 'Router, not installed' }).click()
+  await expect(page.getByRole('button', { name: 'Router, selected for placement' })).toBeVisible()
+  await page.locator('[data-slot="0"]').click()
+  await expect(page.getByRole('button', { name: 'Router, installed' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Inspect Router' })).toBeVisible()
+  await expect(page.getByLabel('Phone Wi-Fi network, not connected')).toBeVisible()
+  const targetSizes = await page.locator('button, select').evaluateAll((controls) =>
+    controls.map((control) => {
+      const box = control.getBoundingClientRect()
+      const style = getComputedStyle(control)
+      const before = getComputedStyle(control, '::before')
+      const size = (value: string) => {
+        const parsed = Number.parseFloat(value)
+        return Number.isFinite(parsed) ? parsed : 0
+      }
+      const beforeWidth =
+        size(before.width) + Math.abs(size(before.left)) + Math.max(0, size(before.right) * -1)
+      const beforeHeight =
+        size(before.height) + Math.abs(size(before.top)) + Math.max(0, size(before.bottom) * -1)
+      return {
+        label: control.getAttribute('aria-label') ?? control.textContent?.trim() ?? control.tagName,
+        disabled: control.hasAttribute('disabled'),
+        width: Math.max(box.width, beforeWidth || 0),
+        height: Math.max(box.height, beforeHeight || 0),
+        display: style.display,
+      }
+    }),
+  )
+  const failures = targetSizes.filter(
+    (target) =>
+      !target.disabled && target.display !== 'none' && (target.width < 44 || target.height < 44),
+  )
+  expect(failures).toEqual([])
 })
 
 test('storage failure preserves session play and does not claim saved explanations', async ({
@@ -299,4 +339,86 @@ test('production build reloads and plays offline with saved progress', async ({
   await page.reload()
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.locator('.reflection')).toBeVisible()
+})
+
+test('production update waits for old tabs and keeps saved progress', async ({ page }) => {
+  test.skip(!config().production, 'Service worker is production-only.')
+  await page.goto('/')
+  await expect(page.locator('.offline-state')).toHaveText('Ready for offline play')
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+  await build(page)
+  const swPath = fileURLToPath(new URL('../../dist/sw.js', import.meta.url))
+  const sw = await readFile(swPath, 'utf8')
+  const updateWorker = `/sw.js?test-update-${Date.now()}`
+  await page.route(`**${updateWorker}`, (route) =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      body: sw.replace(/PREFIX \+ '[^']+'/, "PREFIX + 'test-update'"),
+    }),
+  )
+  await page.evaluate(async (workerUrl) => {
+    const registration = await navigator.serviceWorker.register(workerUrl, { scope: '/' })
+    await new Promise<void>((resolve, reject) => {
+      const waiting = registration.waiting
+      if (waiting) {
+        resolve()
+        return
+      }
+      const worker = registration.installing
+      if (!worker) {
+        reject(new Error('Missing installing worker.'))
+        return
+      }
+      worker.addEventListener('statechange', () => {
+        if (registration.waiting) resolve()
+        if (worker.state === 'redundant') reject(new Error('Update install failed.'))
+      })
+    })
+  }, updateWorker)
+  await expect(page.locator('.offline-state')).toHaveText('Update ready. Close all tabs to finish.')
+  await expect(page.getByText('Your homelab is online.')).toBeVisible()
+  const cacheKeys = await page.evaluate(() => caches.keys())
+  expect(cacheKeys.filter((key) => key.startsWith('homelab-offline-'))).toHaveLength(1)
+})
+
+test('production failed update keeps current offline version', async ({ page, context }) => {
+  test.skip(!config().production, 'Service worker is production-only.')
+  await page.goto('/')
+  await expect(page.locator('.offline-state')).toHaveText('Ready for offline play')
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+  await build(page)
+  const swPath = fileURLToPath(new URL('../../dist/sw.js', import.meta.url))
+  const sw = await readFile(swPath, 'utf8')
+  const failedUpdateWorker = `/sw.js?test-failed-update-${Date.now()}`
+  await context.route(`**${failedUpdateWorker}`, (route) => {
+    const failedWorker = sw
+      .replace(/PREFIX \+ '[^']+'/, "PREFIX + 'test-failed-update'")
+      .replace(
+        /event\.waitUntil\(\(async \(\) => \{[\s\S]*?\}\)\(\)\);/m,
+        "event.waitUntil(Promise.reject(new Error('test install failure')));",
+      )
+    return route.fulfill({ contentType: 'text/javascript', body: failedWorker })
+  })
+  await page.evaluate(async (workerUrl) => {
+    const registration = await navigator.serviceWorker.register(workerUrl, { scope: '/' })
+    await new Promise<void>((resolve, reject) => {
+      const worker = registration.installing
+      if (!worker) {
+        reject(new Error('Missing installing worker.'))
+        return
+      }
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'redundant') resolve()
+        if (registration.waiting) reject(new Error('Update install did not fail.'))
+      })
+    })
+  }, failedUpdateWorker)
+  await expect(page.locator('.offline-state')).toHaveText(
+    'Offline download failed. Reload to retry.',
+  )
+  await context.setOffline(true)
+  await page.reload()
+  await expect(page.locator('.offline-state')).toHaveText('Playing offline')
+  await page.getByRole('button', { name: 'Run check' }).click()
+  await expect(page.getByText('Your homelab is online.')).toBeVisible()
 })

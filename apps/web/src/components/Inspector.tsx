@@ -57,6 +57,7 @@ export function Inspector({
           type="button"
           className="remove-device"
           data-action="remove"
+          aria-label={`Remove ${device.name} from rack`}
           onClick={() => dispatch({ type: 'remove', id })}
         >
           <Icon name="MinusCircle" />

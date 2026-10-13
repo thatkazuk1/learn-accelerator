@@ -40,6 +40,13 @@ export function Equipment({
           key={id}
           className={`equipment ${game.equipment === id ? 'active' : ''}`}
           data-equipment={id}
+          aria-label={`${devices[id].name}, ${
+            state.slots.includes(id)
+              ? 'installed'
+              : game.equipment === id
+                ? 'selected for placement'
+                : 'not installed'
+          }`}
           aria-pressed={game.equipment === id}
           onClick={() => dispatch({ type: 'equipment', id })}
         >
