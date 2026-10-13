@@ -1,0 +1,15 @@
+node_modules/
+dist/
+apps/web/tests/test-results/
+apps/web/tests/playwright-report/
+*.tsbuildinfo
+*.log
+.env
+.env.*
+!**/.env.example
+.aws/
+AGENTS.md
+CLAUDE.md
+.agents/
+.claude/
+.codex/

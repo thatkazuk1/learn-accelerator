@@ -1,0 +1,26 @@
+button {
+  transition: transform var(--transition-press);
+}
+button:active:not(:disabled):not([data-static]) {
+  transform: scale(var(--press-scale));
+}
+.cables .wireless-path {
+  stroke-width: 2;
+  stroke-dasharray: 3 7;
+  filter: none;
+}
+.equipment-icon svg,
+.device-name svg {
+  stroke-width: 2;
+}
+.brand > svg {
+  stroke-width: 2.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+  button:active:not(:disabled):not([data-static]) {
+    transform: none;
+  }
+}

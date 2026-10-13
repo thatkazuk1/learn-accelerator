@@ -1,0 +1,33 @@
+{
+  "name": "homelab-weave",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@8.6.1",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "dev": "pnpm build:core && pnpm --filter @homelab/web dev",
+    "preview": "pnpm --filter @homelab/web preview",
+    "build:core": "pnpm --filter @homelab/core build",
+    "typecheck": "pnpm build:core && pnpm -r --if-present typecheck && tsc -p tsconfig.tools.json",
+    "lint": "eslint . && prettier --check .",
+    "test": "pnpm build:core && tsx --test apps/web/tests/network.test.ts",
+    "test:browser": "pnpm build:core && playwright test -c apps/web/tests/playwright.config.ts",
+    "build": "pnpm -r --if-present build",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "9.17.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.10.5",
+    "eslint": "9.17.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "prettier": "3.4.2",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3",
+    "typescript-eslint": "8.18.0",
+    "@homelab/core": "workspace:*"
+  }
+}

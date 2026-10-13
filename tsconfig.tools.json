@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@homelab/core": ["packages/core/src/index.ts"]
+    }
+  },
+  "include": ["apps/web/tests/**/*.ts"]
+}

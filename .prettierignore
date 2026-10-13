@@ -1,0 +1,10 @@
+node_modules/
+**/dist/
+apps/web/tests/test-results/
+apps/web/tests/playwright-report/
+pnpm-lock.yaml
+AGENTS.md
+CLAUDE.md
+.agents/
+.claude/
+.codex/
