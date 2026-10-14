@@ -6,9 +6,38 @@ import { fileURLToPath } from 'node:url'
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
+    localStorage.setItem('homelab.player.v1', JSON.stringify({ name: 'Test Operator' }))
     for (const id of ['v1', 'challenge.v1', 'broken-link.v1', 'choose-device.v1', 'expand.v1'])
       localStorage.setItem(`homelab.briefing.${id}`, 'done')
   })
+})
+
+async function openMission(page: Page, name = 'First connection') {
+  const card = page.locator('.mission-card').filter({ hasText: name }).first()
+  if (await card.isVisible()) await card.click()
+}
+
+async function dismissBriefing(page: Page) {
+  const begin = page.getByRole('button', { name: 'Begin mission' })
+  if (await begin.isVisible()) await begin.click()
+}
+
+test('welcome screen collects name and shows dashboard', async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem('homelab.player.v1'))
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Welcome to your homelab.' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Start' })).toBeDisabled()
+  await page.getByLabel('Your name').fill('Ada')
+  await page.getByRole('button', { name: 'Start' }).click()
+  await expect(page.getByRole('heading', { name: 'Welcome back, Ada.' })).toBeVisible()
+  await expect(
+    page.locator('.mission-card').filter({ hasText: 'First connection' }).first(),
+  ).toBeEnabled()
+  await expect(
+    page.locator('.mission-card').filter({ hasText: 'On your own' }).first(),
+  ).toBeDisabled()
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('homelab.player.v1')!))
+  expect(saved).toEqual({ name: 'Ada' })
 })
 
 test('version-one saves load without migration and reflection text cannot create HTML', async ({
@@ -46,6 +75,7 @@ test('version-one saves load without migration and reflection text cannot create
     )
   }, reflection)
   await page.goto('/')
+  await openMission(page, 'On your own')
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.locator('.result.pass')).toHaveCount(2)
   await expect(page.locator('#reflection-router')).toHaveValue(reflection)
@@ -59,6 +89,8 @@ test('version-one saves load without migration and reflection text cannot create
 })
 
 async function build(page: Page, keyboard = false) {
+  await openMission(page)
+  await dismissBriefing(page)
   const activate = async (locator: Locator) => {
     if (keyboard) {
       await locator.focus()
@@ -109,6 +141,7 @@ test('build, diagnose, undo, persist and reset', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Undo last change' }).click()
   await expect(page.getByText('Your homelab is online.')).toBeVisible()
   await page.reload()
+  await openMission(page)
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.getByText('Your homelab is online.')).toBeVisible()
   await page.getByRole('button', { name: 'Reset level' }).click()
@@ -177,6 +210,7 @@ test('prediction can be completed with the keyboard on mobile', async ({ page },
 })
 
 async function wireChallenge(page: Page) {
+  await dismissBriefing(page)
   for (const pair of [
     ['isp:ETH', 'router:WAN'],
     ['router:LAN', 'switch:5'],
@@ -191,6 +225,7 @@ async function wireChallenge(page: Page) {
 
 test('keyboard focus follows placement, removal and cancellation', async ({ page }) => {
   await page.goto('/')
+  await openMission(page)
   await page.locator('[data-equipment="router"]').focus()
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-slot="0"]')).toBeFocused()
@@ -205,6 +240,7 @@ test('keyboard focus follows placement, removal and cancellation', async ({ page
 
 test('controls have state names and target sizes', async ({ page }) => {
   await page.goto('/')
+  await openMission(page)
   await expect(page.getByRole('button', { name: 'Router, not installed' })).toBeVisible()
   await page.getByRole('button', { name: 'Router, not installed' }).click()
   await expect(page.getByRole('button', { name: 'Router, selected for placement' })).toBeVisible()
@@ -253,11 +289,12 @@ test('storage failure preserves session play and does not claim saved explanatio
     }
   })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Begin mission' }).click()
+  await page.getByLabel('Your name').fill('Session Operator')
+  await page.getByRole('button', { name: 'Start' }).click()
+  await openMission(page)
   await build(page)
   await expect(page.locator('.save-state')).toHaveText('Progress is not saved')
   await page.getByRole('button', { name: '02 On your own' }).click()
-  await page.getByRole('button', { name: 'Begin mission' }).click()
   await wireChallenge(page)
   for (const id of ['router', 'switch', 'ap'])
     await page.locator(`#reflection-${id}`).fill('A session-only explanation for review.')
@@ -302,6 +339,7 @@ test('independent challenge, explanations and separate saved progress', async ({
   await page.getByRole('button', { name: 'Save explanations' }).click()
   await expect(page.locator('.reflection-status')).toContainText('not automatically graded')
   await page.reload()
+  await openMission(page, 'On your own')
   await expect(page.getByRole('heading', { name: 'Your network. Your call.' })).toBeVisible()
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.locator('#reflection-router')).toHaveValue(
@@ -340,12 +378,14 @@ test('production build reloads and plays offline with saved progress', async ({
   await context.setOffline(true)
   await page.reload()
   await expect(page.locator('.offline-state')).toHaveText('Playing offline')
+  await openMission(page)
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.getByText('Your homelab is online.')).toBeVisible()
   await page.getByRole('button', { name: '02 On your own' }).click()
   await wireChallenge(page)
   await expect(page.locator('.reflection')).toBeVisible()
   await page.reload()
+  await openMission(page, 'On your own')
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.locator('.reflection')).toBeVisible()
 })
@@ -428,6 +468,7 @@ test('production failed update keeps current offline version', async ({ page, co
   await context.setOffline(true)
   await page.reload()
   await expect(page.locator('.offline-state')).toHaveText('Playing offline')
+  await openMission(page)
   await page.getByRole('button', { name: 'Run check' }).click()
   await expect(page.getByText('Your homelab is online.')).toBeVisible()
 })

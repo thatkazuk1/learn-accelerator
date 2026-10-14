@@ -43,6 +43,7 @@ button {
   color: inherit;
 }
 button:focus-visible,
+input:focus-visible,
 select:focus-visible,
 a:focus-visible,
 summary:focus-visible {
@@ -128,10 +129,166 @@ select {
 .save-state svg {
   width: 15px;
 }
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--lab-tone-21);
+  font-size: 12px;
+  font-weight: 650;
+  margin-left: auto;
+  padding: 0 10px;
+}
+.topbar-back svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  transform: rotate(180deg);
+}
+.topbar-back + .save-state {
+  margin-left: 0;
+}
 main {
   max-width: 1500px;
   margin: auto;
   padding: 38px 4% 24px;
+}
+.dashboard-main {
+  max-width: 980px;
+}
+.dashboard-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 28px;
+}
+.dashboard-hero h1 {
+  max-width: 680px;
+}
+.dashboard-hero p:last-child {
+  color: var(--lab-tone-19);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border-section);
+  padding-top: 18px;
+}
+.mission-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 100px;
+  padding: 18px 20px;
+  text-align: left;
+  background: var(--surface-white);
+  border: 1px solid var(--lab-tone-26);
+  border-radius: 8px;
+}
+.mission-card:hover:not(:disabled),
+.mission-card[data-highlight='true'] {
+  border-color: var(--lab-tone-27);
+  background: var(--lab-tone-28);
+}
+.mission-card-number {
+  color: var(--lab-tone-116);
+  font: 650 28px/1 monospace;
+}
+.mission-card-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+.mission-card-copy strong {
+  color: var(--lab-tone-15);
+  font-size: 17px;
+  font-weight: 650;
+}
+.mission-card-copy span {
+  color: var(--lab-tone-18);
+  font-size: 10px;
+  font-weight: 750;
+}
+.mission-card-copy small {
+  color: var(--lab-tone-20);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.mission-card-icon {
+  display: grid;
+  place-items: center;
+  color: var(--lab-tone-21);
+}
+.mission-card-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.welcome {
+  width: min(100%, 480px);
+  padding: 42px 40px;
+  background: var(--surface-white);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lab-tone-15);
+  font-size: 24px;
+  font-weight: 750;
+  margin-bottom: 28px;
+}
+.welcome-brand svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.5;
+}
+.welcome h1 {
+  font-size: 30px;
+  margin-bottom: 24px;
+}
+.welcome-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--lab-tone-20);
+  font-size: 12px;
+  font-weight: 650;
+}
+.welcome-field input {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--lab-tone-127);
+  border-radius: 6px;
+  color: var(--text-primary);
+  background: var(--surface-white);
+  padding: 0 13px;
+}
+.welcome-start {
+  width: 100%;
+  margin-top: 20px;
+  min-height: 48px;
+  font-size: 14px;
 }
 .mission {
   display: flex;
@@ -1119,8 +1276,37 @@ footer span:first-child {
   .save-state svg {
     width: 13px;
   }
+  .topbar {
+    gap: 12px;
+  }
+  .topbar-back {
+    padding: 0 4px;
+    font-size: 10px;
+  }
+  .edition {
+    display: none;
+  }
   main {
     padding: 25px 14px 12px;
+  }
+  .dashboard-hero {
+    display: block;
+  }
+  .dashboard-hero .offline-state {
+    display: block;
+    margin-top: 16px;
+  }
+  .mission-card {
+    grid-template-columns: 46px minmax(0, 1fr) 34px;
+    gap: 12px;
+    min-height: 92px;
+    padding: 14px;
+  }
+  .mission-card-number {
+    font-size: 22px;
+  }
+  .mission-card-copy strong {
+    font-size: 15px;
   }
   .mission {
     align-items: flex-start;
@@ -1274,6 +1460,31 @@ footer span:first-child {
   footer span:last-child {
     max-width: 140px;
     text-align: right;
+  }
+}
+@media (max-width: 320px) {
+  .brand {
+    font-size: 20px;
+  }
+  .save-state {
+    max-width: 86px;
+  }
+  .dashboard-main {
+    padding-inline: 10px;
+  }
+  .mission-card {
+    grid-template-columns: 38px minmax(0, 1fr) 28px;
+    padding: 12px 10px;
+  }
+  .mission-card-number {
+    font-size: 19px;
+  }
+  .mission-card-copy strong {
+    font-size: 14px;
+  }
+  .welcome-overlay,
+  .briefing-overlay {
+    padding: 12px;
   }
 }
 /* ── Briefing overlay ── */
@@ -1433,6 +1644,12 @@ footer span:first-child {
 @media (max-width: 560px) {
   .briefing {
     padding: 32px 24px;
+  }
+  .welcome {
+    padding: 32px 24px;
+  }
+  .welcome h1 {
+    font-size: 25px;
   }
   .briefing h1 {
     font-size: 24px;
