@@ -1,4 +1,4 @@
-# Level One: Bring Your Homelab Online
+# Level One: Bring Your Network Online
 
 Status: implementation-ready proposal, expanding the agreed project brief.
 

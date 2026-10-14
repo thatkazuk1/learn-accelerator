@@ -1,76 +1,62 @@
 # Interactive Content Roadmap
 
-Status: proposal. It extends `docs/LEVEL_ONE.md` and `docs/PROJECT_BRIEF.md`.
-It keeps the bounded model: no IP addressing, DHCP, DNS, or packet detail.
+## Submission Status
 
-## 1. What exists
+The proof of concept contains a complete five-mission learning journey.
 
-| Area         | Content today                                                     |
-| ------------ | ----------------------------------------------------------------- |
-| Levels       | Guided level and independent challenge (3 devices, 2 clients)     |
-| Interactions | Place, cable, join Wi-Fi, check, trace, hint, undo, reset         |
-| Prediction   | 3 experiments: unplug AP uplink, router WAN, desktop cable        |
-| Reflection   | One written explanation for each device role (router, switch, AP) |
-| Feedback     | 7 diagnostic messages from `evaluateNetwork`                      |
-| Offline      | Service worker. Both levels work offline.                         |
+| Mission          | Learner action                                                           | Learning goal                                                     |
+| ---------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| First connection | Place equipment, connect Ethernet ports, join Wi-Fi, and run diagnostics | Router, switch, and access-point roles                            |
+| On your own      | Build the same network from a rearranged rack and explain each role      | Independent application and reflection                            |
+| The broken link  | Diagnose and repair reversed router WAN and LAN connections              | Troubleshooting and network boundaries                            |
+| Choose your gear | Select three useful devices from five options                            | Distinguish routers, switches, access points, hubs, and repeaters |
+| Expand the lab   | Add another switch and connect the wireless client through it            | Local-network expansion and switch chaining                       |
 
-## 2. Open work from Codex reports
+The journey also includes three predict-then-test disconnection experiments, progressive hints,
+conceptual path traces, local progress, offline play, and a mission dashboard.
 
-| Item                                               | Source                  | Owner    |
-| -------------------------------------------------- | ----------------------- | -------- |
-| First commit, remote, and push                     | Report 03               | Operator |
-| Coolify app, hostname, DNS, tunnel ingress, deploy | Report 03, handoff 03   | Operator |
-| Public-edge checks (HTTPS, cache, offline, saves)  | Report 03               | Operator |
-| Learner pilot with 3 to 5 learners                 | `docs/LEARNER_PILOT.md` | Operator |
-| Measure transfer size before deployment            | ADR 0001                | Codex    |
-| Learning reference view with source links          | `docs/LEVEL_ONE.md`     | Codex    |
+## Submission Scope
 
-## 3. Proposed content
+The build is intentionally bounded:
 
-Each item reuses the existing evaluator unless the table says otherwise.
+- Connectivity and device roles, not packet-level emulation.
+- A static browser application, not an account platform.
+- Local progress, not learner analytics.
+- English content, with a structure that can support later localization.
+- Five polished missions instead of a large catalog of shallow lessons.
 
-| #   | Content                              | Player action                                                           | Learning goal                              | Model change                    | Cost   |
-| --- | ------------------------------------ | ----------------------------------------------------------------------- | ------------------------------------------ | ------------------------------- | ------ |
-| 1   | **Fix-It racks** (4 broken networks) | Read the symptom, find the faulty cable, repair it, name the fault      | Diagnosis. WAN/LAN roles. Uplink vs Wi-Fi. | None. New preset data only.     | Low    |
-| 2   | **Hop-by-hop path**                  | Step through the route. At each hop, answer "what does this device do?" | Device roles in sequence                   | None. Uses `Connectivity.path`. | Low    |
-| 3   | **Spot the fault**                   | Look at a drawn rack. Click the wrong cable.                            | Fast visual diagnosis                      | None                            | Low    |
-| 4   | **Fewest devices**                   | Bring one chosen client online with the fewest devices                  | Why each device exists                     | None                            | Low    |
-| 5   | **Role match**                       | Match 6 short scenarios to router, switch, or AP                        | Role vocabulary                            | None                            | Low    |
-| 6   | **Reference and glossary**           | Open a panel with role summaries and source links                       | Review and trust                           | None                            | Low    |
-| 7   | **Progress and badges**              | See levels done, hints used, predictions correct                        | Staying in the journey                     | New save key                    | Medium |
-| 8   | **Loop lab**                         | Build a loop on purpose, then remove it                                 | Layer 2 loops                              | Second switch or second AP      | High   |
-| 9   | **Two access points**                | Add a second AP. Predict which clients stay online.                     | Redundancy and bridging                    | More slots and ports            | High   |
+This scope keeps the application small, private, and useful on limited connections.
 
-## 4. Finding: the loop message is probably unreachable
+## Delivered Access Work
 
-`evaluateNetwork` reports a Layer 2 loop. With one switch, one AP, and one router,
-no cable set creates a cycle. The router LAN and WAN ports are not linked inside the router.
-Cables must join two different devices. Content item 8 needs a second switch or AP first.
-Codex must confirm this with a test before any loop content is planned.
+- Public HTTPS deployment at [learn.kazuki.uk](https://learn.kazuki.uk).
+- Approximately 304 KB production bundle before transport compression.
+- No external runtime assets, API, database, or account.
+- Offline access after the first successful load.
+- Mobile, touch, pointer, and keyboard operation.
+- Reduced-motion behavior and text labels for important states.
+- Source-backed technical explanations and explicit simulation limits.
 
-## 5. Recommended order
+## Future Development
 
-Codex advises that no new networking lessons start before the first learner sessions.
-The order of work is: deploy, test with 3 to 5 learners, fix the observed problems, prepare the submission.
+These are post-submission opportunities, not missing requirements for the proof of concept.
 
-| Step  | Work                                                                                                              | Handoff                   |
-| ----- | ----------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| 1     | Public HTTPS deployment                                                                                           | 03 (operator steps)       |
-| 2     | Pre-pilot hardening, in this order: technical content review, offline update test, accessibility (lower priority) | 05                        |
-| 3     | Learner sessions                                                                                                  | `docs/LEARNER_PILOT.md`   |
-| 4     | Fix observed problems                                                                                             | New handoff, after step 3 |
-| 5     | Capstone evidence and presentation                                                                                | New handoff, after step 4 |
-| Later | Content in section 3, chosen by pilot findings. Fix-It racks are ready as handoff 04 (deferred).                  | 04                        |
+| Priority | Addition                                             | Purpose                                                         |
+| -------- | ---------------------------------------------------- | --------------------------------------------------------------- |
+| 1        | Extract interface and mission text into locale files | Prepare complete translations without mixing content with logic |
+| 2        | Add a complete French locale                         | Demonstrate multilingual scaling across more African learners   |
+| 3        | Add more troubleshooting presets                     | Reuse the evaluator for repeated diagnostic practice            |
+| 4        | Add subnetting and address-planning missions         | Extend the curriculum after the connectivity foundation         |
+| 5        | Export a local progress summary                      | Let a learner share work without creating an account            |
 
-Optional additions from Codex: export of learner explanations, and multilingual support.
-Do not add accounts, an AI tutor, leaderboards, or a full network emulator.
+## Product Rules
 
-## 6. Rules for every new item
+Future work should preserve these decisions:
 
-- Keep the three existing save keys and their version-1 shapes unchanged.
-- Give each new feature its own save key and version.
-- Keep derived results out of saved state.
-- No timers, no attempt limits, no score penalty for hints.
-- Keyboard and reduced-motion support are required.
-- No new dependency and no external request.
-- Say in the interface what the model does not simulate.
+- No timers, lost lives, or score penalty for hints.
+- No account requirement for core learning.
+- New missions must work with keyboard and touch input.
+- New technical claims need credible sources.
+- Saved data must be versioned and validated.
+- The core model must remain independent of browser I/O.
+- New content must not weaken offline use or the small download size.

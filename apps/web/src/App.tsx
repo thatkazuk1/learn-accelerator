@@ -95,7 +95,7 @@ export function App() {
         <a className="brand" href="/">
           <Icon name="Network" />
           <span>
-            homelab<span className="brand-dot">.</span>
+            netwright<span className="brand-dot">.</span>
           </span>
         </a>
         <span className="edition">
@@ -233,7 +233,7 @@ export function App() {
         </main>
       )}
       <footer>
-        <span>HOMELAB / {mission.title.toUpperCase()}</span>
+        <span>NETWRIGHT / {mission.title.toUpperCase()}</span>
         <span>Built for curiosity. No timer, no lost lives.</span>
       </footer>
     </div>

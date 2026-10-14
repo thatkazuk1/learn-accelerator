@@ -23,7 +23,7 @@ export function Diagnostics({
           <p className="eyebrow">CONNECTIVITY CHECK</p>
           <h2>
             {game.tested && won
-              ? 'Your homelab is online.'
+              ? 'Your network is online.'
               : 'Can your devices reach the internet?'}
           </h2>
         </div>
