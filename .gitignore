@@ -8,8 +8,4 @@ apps/web/tests/playwright-report/
 .env.*
 !**/.env.example
 .aws/
-AGENTS.md
-CLAUDE.md
-.agents/
 .claude/
-.codex/

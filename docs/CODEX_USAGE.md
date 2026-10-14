@@ -74,6 +74,10 @@ The public application is available at [learn.kazuki.uk](https://learn.kazuki.uk
 
 The repository keeps concise evidence of the AI-assisted process:
 
+- `AGENTS.md` contains the project-specific instructions Codex followed.
+- `.agents/skills/` contains the TypeScript and UI skills used during implementation and review.
+- `.codex/README.md` points Codex to the active handoff and provider-switching workflow.
+- `CLAUDE.md` gives Claude Code the same project guide when it is used for planning or review.
 - `docs/DEVELOPMENT_LOG.md` records major iterations, corrections, and verification results.
 - `docs/adrs/decisions/` records architecture decisions.
 - `docs/adrs/handoff/` defines scoped tasks and acceptance criteria before implementation.
