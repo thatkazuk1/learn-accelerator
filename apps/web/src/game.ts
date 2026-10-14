@@ -3,12 +3,15 @@ import {
   devices,
   freshJourney,
   freshMission,
+  freshPlayer,
   journeyKey,
   missionKeys,
   missionMap,
   missions,
+  playerKey,
   restore,
   restoreJourney,
+  restorePlayer,
   runExperiment,
   isMissionUnlocked,
 } from '@homelab/core'
@@ -21,6 +24,7 @@ import type {
   Journey,
   MissionId,
   NetworkState,
+  Player,
   PortId,
   Prediction,
 } from '@homelab/core'
@@ -29,6 +33,7 @@ import { evaluate } from '@/network'
 export interface Game {
   states: Record<MissionId, NetworkState>
   journey: Journey
+  player: Player
   selected: DeviceId
   equipment: EquipmentId | null
   pending: PortId | null
@@ -55,6 +60,7 @@ export type Action =
   | { type: 'disconnect'; index: number }
   | { type: 'level'; level: MissionId }
   | { type: 'mission'; id: MissionId }
+  | { type: 'player'; name: string }
   | { type: 'experiment'; id: ExperimentId }
   | { type: 'answer'; id: AnswerId }
   | { type: 'reflection'; id: EquipmentId; text: string }
@@ -73,12 +79,19 @@ export type Action =
 
 export function loadGame(): Game {
   let journey = freshJourney()
+  let player = freshPlayer()
   const states: Record<string, NetworkState> = {}
   for (const m of missions) states[m.id] = freshMission(m.id)
   let initialStorageOK = true
   try {
     const saved = localStorage.getItem(journeyKey)
     if (saved) journey = restoreJourney(JSON.parse(saved))
+  } catch {
+    initialStorageOK = false
+  }
+  try {
+    const saved = localStorage.getItem(playerKey)
+    if (saved) player = restorePlayer(JSON.parse(saved))
   } catch {
     initialStorageOK = false
   }
@@ -93,6 +106,7 @@ export function loadGame(): Game {
   return {
     states: states as Record<MissionId, NetworkState>,
     journey,
+    player,
     initialStorageOK,
     changed: false,
     selected: 'router',
@@ -276,6 +290,12 @@ export function reduceGame(previous: Game, action: Action): Game {
         deviceFeedback: null,
       }
     }
+    case 'player':
+      return {
+        ...game,
+        player: { name: action.name.trim().slice(0, 80) },
+        changed: true,
+      }
     case 'selectDevice': {
       const sel = mission.features?.deviceSelection
       if (!sel) return game

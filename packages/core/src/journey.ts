@@ -15,6 +15,10 @@ export const missionKeys: Record<MissionId, string> = {
   expand: 'homelab.mission-expand.v1',
 }
 export const journeyKey = 'homelab.journey.v1'
+export const playerKey = 'homelab.player.v1'
+export interface Player {
+  name: string
+}
 export interface Journey {
   level: LevelId
   unlocked: boolean
@@ -39,6 +43,16 @@ export function freshJourney(): Journey {
     activeMission: 'guided',
     completed: {},
   }
+}
+export function freshPlayer(): Player {
+  return { name: '' }
+}
+export function restorePlayer(raw: unknown): Player {
+  const player = freshPlayer()
+  if (typeof raw !== 'object' || raw === null) return player
+  const value = raw as { name?: unknown }
+  if (typeof value.name === 'string') player.name = value.name.trim().slice(0, 80)
+  return player
 }
 export function reflectionReady(values: Journey['reflections']): boolean {
   return equipmentIds.every((id) => values[id].trim().length >= 10)
