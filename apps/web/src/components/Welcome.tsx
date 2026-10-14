@@ -41,11 +41,11 @@ export function Welcome({ name, onStart }: { name: string; onStart: (name: strin
         <div className="welcome-brand">
           <Icon name="Network" />
           <span>
-            homelab<span className="brand-dot">.</span>
+            netwright<span className="brand-dot">.</span>
           </span>
         </div>
         <p className="eyebrow">PLAYER PROFILE</p>
-        <h1 id="welcome-title">Welcome to your homelab.</h1>
+        <h1 id="welcome-title">Welcome to Netwright.</h1>
         <label className="welcome-field">
           <span>Your name</span>
           <input

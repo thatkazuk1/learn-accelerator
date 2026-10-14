@@ -1,6 +1,7 @@
 # Report 03: Coolify Deployment
 
-The repository deployment layer is complete and verified locally. Public deployment is not complete.
+The repository deployment layer is complete and verified locally. The operator later published the
+application at [learn.kazuki.uk](https://learn.kazuki.uk).
 
 ## Changes
 
@@ -39,8 +40,21 @@ These checks passed:
 Chrome reported `ERR_INTERNET_DISCONNECTED` after the test deliberately disabled networking.
 The service worker still returned the application. This browser event is expected for the offline check.
 
-## Open Work
+## Public Deployment Update - 2026-10-14
+
+The application is deployed through the owner's self-hosted Coolify instance with a public HTTPS
+hostname. The submission build requires no runtime environment variables, database, or persistent
+volume.
+
+A read-only public smoke check on 2026-10-14 confirmed `200` responses for `/`, `/healthz`, and
+`/sw.js`. The homepage includes the configured content security, permissions, referrer, content-type,
+and frame headers. Cloudflare currently sends `Cache-Control: max-age=14400` for `sw.js` instead of
+the origin's `no-cache` policy. Offline play still works, but this edge policy can delay update checks
+for up to four hours and should be corrected after submission.
+
+## Historical Open Work
 
 The operator must create and push the Git repository, configure the Coolify application,
 choose the public hostname, configure DNS and tunnel ingress, and start the deployment.
-Public-edge HTTPS, certificate, cache, service-worker, offline, and saved-progress checks remain open.
+These were the operator steps that remained when this report was first written. The application is
+now public. A final public-edge smoke check remains useful after the last submission deployment.

@@ -1,65 +1,88 @@
-# Homelab: Three-Minute Demo
+# Netwright: Three-Minute Demo
 
-## Before Presenting
+## Before Recording
 
-Open the production build on localhost or an HTTPS host and wait for
-"Ready for offline play". Use a fresh browser profile for a clean starting
-point, or reset level one. Reset preserves saved explanations and the unlock
-of level two; do not describe it as clearing all learner data.
+Open [learn.kazuki.uk](https://learn.kazuki.uk) in a fresh browser profile. Confirm the welcome
+screen appears and wait for **Ready for offline play**. Record at 1080p or higher. Keep the pointer
+still when speaking, enlarge the browser if labels are hard to read, and add captions.
 
-Keep a completed second level in another tab if time is tight. Do not open
-two tabs with different saves on the same origin and assume they synchronize:
-progress is local to each page until saved/reloaded.
+Prepare a second browser profile with the first two missions complete. Use it to show the later
+missions without spending the video solving every lab.
 
-## 0:00-0:25 - The Problem
+## 0:00-0:25 - Problem And Approach
 
-"I maintain a homelab, but I still had gaps in networking fundamentals.
-I wanted learners to understand why their network works, not just memorize
-the names of the boxes. Homelab turns that into a small, hands-on exercise."
+Show the welcome screen and enter a name.
 
-## 0:25-1:20 - Build
+> I run and maintain a homelab, but I still found gaps in my networking fundamentals. Many learning
+> tools explain device names or give a quiz. Netwright lets learners construct a network, predict its
+> behavior, break it safely, diagnose it, and explain why it works.
 
-Place the router, switch, and access point. Connect the ISP handoff to WAN,
-router LAN to the switch, and the switch to the desktop and AP. Join Lab-WiFi
-on the phone and run the check.
+## 0:25-0:45 - Learning Journey
 
-"The router has one LAN port. The switch makes room for both wired connections.
-The access point brings the wireless phone onto that network."
+Show the five-mission dashboard and the locked progression.
 
-Show a connection trace. Call it an explanatory path, not a real packet capture.
+> The journey starts with a guided build, then removes support. Later missions ask learners to repair
+> a broken network, choose the correct equipment, and expand the lab with another switch.
 
-## 1:20-1:55 - Predict And Test
+## 0:45-1:30 - Build And Diagnose
 
-Choose the AP-uplink experiment. Predict which client will stay online, then
-test it. Show that Wi-Fi association remains while the phone loses internet.
-Reconnect using the recovery action.
+Open **First connection**. Place the router, switch, and access point. Deliberately connect the ISP to
+router LAN and run the check. Show the diagnostic message, then correct the connection and finish the
+network.
 
-"The feedback separates being connected to Wi-Fi from being connected to the
-internet. Mistakes are reversible and there is no timer."
+> The simulation checks device roles and LAN/WAN boundaries. A connected drawing does not
+> automatically pass. Feedback points to a networking idea instead of asking the learner to guess.
 
-## 1:55-2:25 - Apply And Explain
+Show the successful path trace.
 
-Open "On your own". Show the rearranged, disconnected rack and optional hints.
-Show the completed second level and explanation fields if preprepared.
+> This is a conceptual route, not a packet capture. The game states its simulation limits and links
+> to its technical sources.
 
-"The second challenge asks learners to apply the same device roles in a new
-layout and explain their reasoning. Explanations are saved for review, not
-automatically graded."
+## 1:30-1:55 - Predict Before Testing
 
-## 2:25-2:45 - Real Access Conditions
+Choose the access-point uplink experiment. Predict that only the desktop remains online, run the
+experiment, and show that the phone stays associated with Wi-Fi but loses internet access.
 
-Disconnect networking in browser developer tools, reload, and run the check.
+> Learners commit to a prediction before the game changes the topology. The result separates Wi-Fi
+> association from internet connectivity. Reconnect and Undo make experimentation safe.
 
-"After the initial download, the game works offline. It uses local assets,
-requires no account, and stores progress in this browser."
+## 1:55-2:15 - Apply And Progress
 
-## 2:45-3:00 - Codex And What Comes Next
+Switch to the prepared profile. Show a completed mission and briefly open **The broken link**,
+**Choose your gear**, and **Expand the lab** from the dashboard.
 
-"I chose the problem and learning direction. Codex helped implement the
-simulation, interface, tests, and offline support. Tests caught real issues,
-including offline asset matching and keyboard focus. Next I am testing with
-learners to find out whether their explanations improve."
+> Progress is local to the device. There is no account, timer, leaderboard, or penalty for hints.
+> The focus is understanding and continued practice.
 
-Show DEVELOPMENT_LOG.md if asked for collaboration evidence. Do not claim
-learner validation, multilingual support, or production deployment that has
-not happened. Use LEARNER_PILOT.md to organize the first feedback sessions.
+## 2:15-2:35 - Access Conditions
+
+Use browser developer tools to go offline, reload the dashboard, and open a mission.
+
+> The complete application is about 304 kilobytes before transport compression. After the first
+> load, all five missions work offline. It has no external runtime assets or application backend and
+> remains usable on mobile and with keyboard controls.
+
+## 2:35-2:55 - Codex Usage
+
+Show `docs/CODEX_USAGE.md`, a handoff, and the final test output or repository pull requests.
+
+> I chose the problem, audience, and learning direction. Codex helped me plan bounded iterations,
+> implement the simulation and interface, test real browser behavior, find accessibility and offline
+> bugs, refactor the architecture, and prepare deployment. I reviewed the work and redirected it when
+> repository structure or product choices did not match my standards.
+
+## 2:55-3:00 - Close
+
+Return to the dashboard with the public URL visible.
+
+> Netwright turns networking fundamentals into something learners can build, break, and understand.
+
+## Recording Checklist
+
+- Public URL is visible at least once.
+- Voice is clear and captions are present.
+- The video shows one mistake and its diagnostic feedback.
+- The prediction happens before the disconnection.
+- Offline mode is demonstrated, not only described.
+- Codex evidence is visible for several seconds.
+- Do not claim learner-study results, multilingual support, or packet-level simulation.

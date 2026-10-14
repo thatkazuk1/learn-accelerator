@@ -1,15 +1,22 @@
-# Networking Homelab Game
+# Netwright Networking Game
 
-Working title; final name to be chosen by the project owner.
+## Submission Build
+
+The submitted proof of concept is a public, offline-capable browser game with a welcome flow,
+mission dashboard, and five progressive networking missions. It is available at
+[learn.kazuki.uk](https://learn.kazuki.uk).
+
+The original MVP below defined one guided setup and one independent variation. That scope was
+completed and then extended with troubleshooting, device-selection, and network-expansion missions.
 
 ## Purpose
 
 A browser game for IT students and more experienced learners who want a
 stronger understanding of networking fundamentals. The learner builds and
-connects a tiny homelab, observes its behavior, and learns why it works.
+connects a small virtual network, observes its behavior, and learns why it works.
 
-The idea comes from the project owner's experience maintaining a homelab
-while still having gaps in foundational networking knowledge. The primary
+The idea comes from my experience maintaining a homelab while still having
+gaps in foundational networking knowledge. The primary
 hackathon track is Engagement & Staying in the Learning Journey.
 
 ## Agreed Direction
@@ -21,7 +28,7 @@ hackathon track is Engagement & Staying in the Learning Journey.
 - Aim for a polished initial MVP in roughly two to three weeks, subject to
   available development time and learner feedback.
 
-## Proposed MVP
+## Original MVP
 
 A 10-15 minute experience with one guided setup and one independent variation.
 The learner connects a wired computer and a wireless client to a small network
@@ -104,9 +111,9 @@ and whether they can explain why the finished network works. Treat a small
 pilot as formative feedback rather than proof of broad educational impact.
 
 Keep a development log of meaningful decisions, selected Codex contributions,
-verification results, corrections by the project owner, and changes prompted
-by learner feedback. The project owner retains ownership of the idea and
-learning goals; Codex supports implementation, testing, and refinement.
+verification results, my corrections, and changes prompted by learner feedback.
+I retain ownership of the idea and learning goals; Codex supports implementation,
+testing, and refinement.
 
 ## Next Design Decisions
 

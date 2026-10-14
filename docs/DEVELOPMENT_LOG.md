@@ -4,8 +4,8 @@
 
 ### Human direction
 
-The project owner proposed a browser game for networking fundamentals based on
-their own homelab experience. They chose build-and-connect gameplay, a tiny
+I proposed a browser game for networking fundamentals based on my own homelab
+experience. I chose build-and-connect gameplay, a tiny
 rack, IT students and above, and a solo two-month hackathon scope. They approved
 the first-level specification before implementation.
 
@@ -42,8 +42,8 @@ pilot has occurred. Offline reload and the independent variation remain open.
 
 ## 2026-10-01 - Prediction experiments
 
-The project owner played the first level and confirmed that it worked well,
-then authorized the next step. Added three experiments after successful
+I played the first level and confirmed that it worked well, then authorized
+the next step. Added three experiments after successful
 connectivity checks: remove the AP uplink, router WAN, or desktop cable.
 Players commit to a prediction before the game applies the disconnection.
 Feedback compares the prediction with the simulation and explains the device
@@ -103,7 +103,7 @@ build remains self-contained and offline-capable after its initial download.
 
 ## 2026-10-13 - Shared JS/TS Conventions
 
-The project owner requested their shared JS/TS conventions before public HTTPS deployment.
+I requested my shared JS/TS conventions before public HTTPS deployment.
 Converted the app to a pnpm workspace with strict TypeScript, a pure core package,
 and a React web app. Graphlib remains the graph engine in a web adapter.
 No API was added because the game has no server feature.
@@ -116,3 +116,32 @@ checks old saves and text that contains HTML syntax.
 
 This refactor does not publish the game. Public hosting and learner validation
 remain separate tasks.
+
+## 2026-10-14 - Five-Mission Journey And Public Submission
+
+Adopted **Netwright** as the public game name. The name gives the learner an identity: a person who
+builds, tests, repairs, and understands networks. Internal package names, environment variables,
+cache prefixes, and storage keys remain unchanged to preserve tooling and saved progress.
+
+Expanded the original guided and independent labs into five progressive missions. The new missions
+ask learners to repair reversed router connections, choose the correct devices from plausible
+alternatives, and extend the local network with another switch. Mission definitions, goals, hints,
+unlock rules, and initial states are data-driven in the core package.
+
+Added mission briefings, completion tracking, a local player name, a welcome screen, and a dashboard
+that shows available, locked, and completed missions. The dashboard gives the game a clear entry
+point and makes the learning journey visible without adding accounts or server storage.
+
+Published the static Docker image through my self-hosted Coolify instance at
+`https://learn.kazuki.uk`. The application remains independent of a backend and external runtime
+assets.
+
+Submission verification passed strict TypeScript checks, linting, 12 domain tests, the production
+build, and 13 production browser scenarios. The browser suite covers the welcome flow, existing-save
+compatibility, mobile and keyboard play, control names and target sizes, blocked storage, offline
+reload, and successful and failed service-worker updates. The built site is approximately 304 KB
+before transport compression.
+
+Prepared updated submission documentation, a three-minute recording script, and a detailed account
+of how Codex supported the project while I retained the idea and product decisions. No
+learner-study result or multilingual feature is claimed.

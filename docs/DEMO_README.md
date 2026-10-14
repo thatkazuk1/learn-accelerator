@@ -1,13 +1,13 @@
-# Homelab Demo Bundle
+# Netwright Demo Bundle
 
-This folder contains the compiled browser game. Serve this folder as the
-root of a static website. The entry point is `index.html`; do not open it as
-a `file://` page. No application server, account, API key, or database is
-required.
+The public demo is available at [learn.kazuki.uk](https://learn.kazuki.uk).
 
-For a local preview, use a static server bound to localhost. For a public
-demo, use HTTPS. An unencrypted LAN URL does not support offline installation.
-This bundle has not been published to a public host.
+The compiled browser game can also be served as a static site. The entry point
+is `apps/web/dist/index.html`; do not open it as a `file://` page. No application
+server, account, API key, or database is required.
+
+For a local preview, use `pnpm build` followed by `pnpm preview`. A public demo
+must use HTTPS. An unencrypted LAN URL does not support offline installation.
 
 ## Offline And Updates
 
@@ -31,7 +31,6 @@ The interface reports that progress is not saved. Reloading loses that session.
 
 ## Suggested Test
 
-Build the first network, try a prediction, then complete "On your own" and
-write device-role explanations. Reload to check progress, then disconnect
-the browser and repeat. Use the accompanying learner-pilot guide and demo
-script for observation and presentation.
+Build the first network, try a prediction, then show the dashboard and later
+missions. Reload to check progress, then disconnect the browser and repeat.
+Use the accompanying demo script for the submission recording.

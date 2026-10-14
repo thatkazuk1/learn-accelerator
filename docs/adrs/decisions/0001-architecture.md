@@ -4,7 +4,7 @@ Status: Accepted for the conventions refactor on 2026-10-13.
 
 ## Context
 
-Homelab is a static browser game. It has no accounts, database, or server requests.
+Netwright is a static browser game. It has no accounts, database, or server requests.
 The operator requested the shared JS/TS conventions before public HTTPS deployment.
 No local architecture ADR or agent guide existed at the start of this work.
 
