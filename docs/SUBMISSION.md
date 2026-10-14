@@ -77,6 +77,8 @@ future steps, but multilingual support is not claimed in this submission.
 - Codex supported scoping, architecture, implementation, refactoring, tests, debugging,
   documentation, and deployment preparation.
 - I supplied the original idea, learning goals, product decisions, and repository standards.
+- The public `AGENTS.md`, `.agents/skills/`, and `.codex/` files show the instructions and reusable
+  skills Codex followed in the repository.
 - Handoffs and reports connect each task to acceptance criteria and validation evidence.
 - Codex-assisted checks found real focus, accessible-name, storage, offline-cache, and
   service-worker-update problems.

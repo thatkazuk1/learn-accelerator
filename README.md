@@ -199,6 +199,7 @@ with no dedicated support channel or service-level agreement.
 Useful project records:
 
 - [Submission brief and rubric evidence](docs/SUBMISSION.md)
+- [Public agent instructions](AGENTS.md)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
 - [Project brief](docs/PROJECT_BRIEF.md)
 - [Development log](docs/DEVELOPMENT_LOG.md)
